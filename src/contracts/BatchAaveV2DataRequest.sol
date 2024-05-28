@@ -15,15 +15,13 @@ contract BatchAaveV2DataRequest {
 
     for (uint256 i = 0; i < _assets.length; i++) {
       DataTypes.ReserveData memory _reserveData = _lendingPool.getReserveData(_assets[i]);
-      uint256 currentLiquidityRate = _reserveData.currentLiquidityRate;
-      address aTokenAddress = _reserveData.aTokenAddress;
 
       // asset is the ERC20 supplied or borrowed, eg. DAI, WETH
-      (, uint256 aEmissionPerSecond,) = _incentivesController.getAssetData(aTokenAddress);
+      (, uint256 aEmissionPerSecond,) = _incentivesController.getAssetData(_reserveData.aTokenAddress);
 
       _returnData[i] = Data({
-        currentLiquidityRate: currentLiquidityRate,
-        aTokenAddress: aTokenAddress,
+        currentLiquidityRate: _reserveData.currentLiquidityRate,
+        aTokenAddress: _reserveData.aTokenAddress,
         aEmissionPerSecond: aEmissionPerSecond
       });
     }

@@ -18,9 +18,6 @@ contract BatchAaveV3DataRequest {
 
     for (uint256 i = 0; i < _assets.length; i++) {
       (,,,,, uint256 liquidityRate,,,,,,) = _poolDataProvider.getReserveData(_assets[i]);
-      // uint256 liquidityRate = _reserveData.liquidityRate;
-      // address aTokenAddress = _reserveData.aTokenAddress;
-
       _returnData[i] = Data({liquidityRate: liquidityRate});
     }
 

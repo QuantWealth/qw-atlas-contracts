@@ -12,6 +12,8 @@ sort_imports = true
 solc_version = '0.8.23'
 libs = ['node_modules', 'lib']
 optimizer_runs = 10_000
+optimizer = false
+viaIR = true
 
 [profile.optimized]
 via_ir = true
