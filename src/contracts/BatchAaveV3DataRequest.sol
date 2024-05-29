@@ -1,29 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {Data, DataTypes, IIncentivesController, ILendingPool} from '../interfaces/aave-v2/IAaveV2.sol';
+import {Data, DataTypes, IPool, IPoolDataProvider} from '../interfaces/aave-v3/IAaveV3.sol';
 
 /**
  * To calculate deposit apy/apr from this data
- * https://docs.aave.com/developers/v/2.0/guides/apy-and-apr#compute-data
+ * RAY = 10**27
+ * SECONDS_PER_YEAR = 31536000
+ * depositAPR = liquidityRate/RAY
+ * depositAPY = ((1 + (depositAPR / SECONDS_PER_YEAR)) ^ SECONDS_PER_YEAR) - 1
  */
-contract BatchAaveV2DataRequest {
+contract BatchAaveV3DataRequest {
   // This contract is used to fetch apy data points from aave
-  constructor(ILendingPool _lendingPool, IIncentivesController _incentivesController, address[] memory _assets) {
+  constructor(IPool _pool, address[] memory _assets) {
     // create an array to store return data
     Data[] memory _returnData = new Data[](_assets.length);
 
     for (uint256 i = 0; i < _assets.length; i++) {
-      DataTypes.ReserveData memory _reserveData = _lendingPool.getReserveData(_assets[i]);
-
-      // asset is the ERC20 supplied or borrowed, eg. DAI, WETH
-      (, uint256 aEmissionPerSecond,) = _incentivesController.getAssetData(_reserveData.aTokenAddress);
-
-      _returnData[i] = Data({
-        currentLiquidityRate: _reserveData.currentLiquidityRate,
-        aTokenAddress: _reserveData.aTokenAddress,
-        aEmissionPerSecond: aEmissionPerSecond
-      });
+      DataTypes.ReserveData memory _reserveData = _pool.getReserveData(_assets[i]);
+      _returnData[i] = Data({liquidityRate: _reserveData.currentLiquidityRate});
     }
 
     // encode return data
