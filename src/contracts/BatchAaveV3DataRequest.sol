@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {Data, IPoolDataProvider} from '../interfaces/aave-v3/IAaveV3.sol';
+import {Data, DataTypes, IPool, IPoolDataProvider} from '../interfaces/aave-v3/IAaveV3.sol';
 
 /**
  * To calculate deposit apy/apr from this data
@@ -12,13 +12,13 @@ import {Data, IPoolDataProvider} from '../interfaces/aave-v3/IAaveV3.sol';
  */
 contract BatchAaveV3DataRequest {
   // This contract is used to fetch apy data points from aave
-  constructor(IPoolDataProvider _poolDataProvider, address[] memory _assets) {
+  constructor(IPool _pool, address[] memory _assets) {
     // create an array to store return data
     Data[] memory _returnData = new Data[](_assets.length);
 
     for (uint256 i = 0; i < _assets.length; i++) {
-      (,,,,, uint256 liquidityRate,,,,,,) = _poolDataProvider.getReserveData(_assets[i]);
-      _returnData[i] = Data({liquidityRate: liquidityRate});
+      DataTypes.ReserveData memory _reserveData = _pool.getReserveData(_assets[i]);
+      _returnData[i] = Data({liquidityRate: _reserveData.currentLiquidityRate});
     }
 
     // encode return data
